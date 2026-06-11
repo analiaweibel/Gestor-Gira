@@ -418,6 +418,19 @@
   .sort-btn { background:none; border:1px solid var(--border); color:var(--text3); padding:5px 10px; border-radius:var(--radius-sm); cursor:pointer; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; transition:all .15s; }
   .sort-btn:hover, .sort-btn.active { border-color:var(--brand); color:var(--brand); background:var(--brand-dim); }
 
+  /* RICH EDITOR */
+  .rich-wrap { border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:var(--surface2); transition:border-color .2s; }
+  .rich-wrap:focus-within { border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-dim); }
+  .rich-toolbar { display:flex; gap:2px; padding:4px 8px; background:var(--surface3); border-bottom:1px solid var(--border); }
+  .rich-btn { background:none; border:1px solid transparent; border-radius:4px; padding:3px 8px; cursor:pointer; font-size:13px; color:var(--text2); transition:all .12s; font-family:'DM Sans',sans-serif; }
+  .rich-btn:hover { background:#fff; border-color:var(--border); color:var(--text); }
+  .rich-btn.active { background:var(--brand-dim); border-color:var(--brand); color:var(--brand); font-weight:700; }
+  .rich-body { padding:10px 12px; min-height:120px; outline:none; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); line-height:1.7; white-space:pre-wrap; word-break:break-word; background:var(--surface2); }
+  .rich-body:empty::before { content:attr(data-placeholder); color:var(--text3); pointer-events:none; }
+  .rich-body b, .rich-body strong { font-weight:700; color:var(--text); }
+  .rich-body i, .rich-body em { font-style:italic; }
+  .rich-body u { text-decoration:underline; }
+
   @media(max-width:900px) {
     .tareas-board { grid-template-columns:1fr; }
     .locaciones-grid { grid-template-columns:1fr; }
@@ -1604,9 +1617,9 @@ function renderSheetContent(sheet, ev, sheetIdx) {
       <div class="info-field"><label>Fecha fin / desarmado</label><input type="date" id="ed-fecha-desarmado" value="${ev.fecha_desarmado||''}" onchange="autosaveEvent()"></div>
     </div>
     <div class="section-label">Descripción</div>
-    <textarea class="notas-area" id="ed-desc" placeholder="Descripción y detalles del evento..." oninput="autosaveEvent()">${ev.descripcion||''}</textarea>
+    ${richEditorHTML('ed-desc', ev.descripcion||'', 'Descripción y detalles del evento...', 140)}
     <div class="section-label">Notas internas</div>
-    <textarea class="notas-area" id="ed-notas" placeholder="Notas generales del equipo..." oninput="autosaveEvent()">${ev.notas||''}</textarea>`;
+    ${richEditorHTML('ed-notas', ev.notas||'', 'Notas generales del equipo...', 140)}`;
 
   if (sheet.type === 'checklist') return `
     <div class="section-label">Checklist de tareas</div>
@@ -1691,37 +1704,27 @@ function renderSheetContent(sheet, ev, sheetIdx) {
 
   if (sheet.type === 'armado') return `
     <div class="section-label">Armado del evento</div>
-    <textarea class="notas-area" style="min-height:300px;font-size:14px;line-height:1.9;"
-      placeholder="Plan de armado: timing, equipos, accesos, montaje..."
-      oninput="saveBuiltinFreeSheet('armado',this.value)">${ev.armado||''}</textarea>`;
+    ${richEditorHTML('rich-armado', ev.armado||'', 'Plan de armado: timing, equipos, accesos, montaje...', 300)}`;
 
   if (sheet.type === 'menu') return `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
       <div>
         <div class="section-label" style="margin-top:0;">Menú general</div>
-        <textarea class="notas-area" style="min-height:340px;font-size:14px;line-height:1.9;resize:vertical;"
-          placeholder="Entrada, principal, postre, bebidas, snacks..."
-          oninput="saveBuiltinFreeSheet('menu',this.value)">${ev.menu||''}</textarea>
+        ${richEditorHTML('rich-menu', ev.menu||'', 'Entrada, principal, postre, bebidas, snacks...', 340)}
       </div>
       <div>
         <div class="section-label" style="margin-top:0;">Menú especial <span style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">(celíaco, vegano, kosher, diabético…)</span></div>
-        <textarea class="notas-area" style="min-height:340px;font-size:14px;line-height:1.9;resize:vertical;"
-          placeholder="Tipo · Cantidad de comensales&#10;Ej: Vegano · 3 personas&#10;Ej: Celíaco · 5 personas"
-          oninput="saveBuiltinFreeSheet('menu_especial',this.value)">${ev.menu_especial||''}</textarea>
+        ${richEditorHTML('rich-menu-especial', ev.menu_especial||'', 'Tipo · Cantidad de comensales', 340)}
       </div>
     </div>`;
 
   if (sheet.type === 'equipamiento') return `
     <div class="section-label">Equipamiento técnico</div>
-    <textarea class="notas-area" style="min-height:300px;font-size:14px;line-height:1.9;"
-      placeholder="Sonido, iluminación, pantallas, micrófonos, streaming, generadores..."
-      oninput="saveBuiltinFreeSheet('equipamiento',this.value)">${ev.equipamiento||''}</textarea>`;
+    ${richEditorHTML('rich-equipamiento', ev.equipamiento||'', 'Sonido, iluminación, pantallas, micrófonos...', 300)}`;
 
   if (sheet.type === 'ambientacion') return `
     <div class="section-label">Ambientación</div>
-    <textarea class="notas-area" style="min-height:300px;font-size:14px;line-height:1.9;"
-      placeholder="Decoración, flores, mesas, sillas, mantelería, colores, temática..."
-      oninput="saveBuiltinFreeSheet('ambientacion',this.value)">${ev.ambientacion||''}</textarea>`;
+    ${richEditorHTML('rich-ambientacion', ev.ambientacion||'', 'Decoración, flores, mesas, sillas, mantelería, colores, temática...', 300)}`;
 
   if (sheet.type === 'archivos') return `
     <div class="section-label">Archivos adjuntos</div>
@@ -1760,8 +1763,9 @@ function autosaveEvent() {
   autosaveTimer = setTimeout(async () => {
     const ev = eventsData.find(e => e.id === currentEventId); if (!ev) return;
     const g = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
-    if (g('ed-desc') !== undefined) ev.descripcion = g('ed-desc');
-    if (g('ed-notas') !== undefined) ev.notas = g('ed-notas');
+    const h = id => { const el = document.getElementById(id); return el ? el.innerHTML : undefined; };
+    if (h('ed-desc') !== undefined) ev.descripcion = h('ed-desc');
+    if (h('ed-notas') !== undefined) ev.notas = h('ed-notas');
     if (g('ed-empresa') !== undefined) ev.empresa = g('ed-empresa');
     if (g('ed-fecha') !== undefined) ev.fecha = g('ed-fecha');
     if (g('ed-responsable') !== undefined) ev.responsable = g('ed-responsable');
@@ -3173,6 +3177,65 @@ async function saveLocacion() {
     renderLocaciones();
     toast('Locación guardada', 'ok');
   } catch(e) { toast('Error al guardar', 'err'); }
+}
+
+
+// ═══════════════════════════════════════════
+//  RICH TEXT EDITOR
+// ═══════════════════════════════════════════
+function richEditorHTML(id, value, placeholder, minH) {
+  const h = minH || 120;
+  return `<div class="rich-wrap">
+    <div class="rich-toolbar">
+      <button class="rich-btn" onmousedown="event.preventDefault();richCmd('bold')" title="Negrita (Ctrl+B)"><b>N</b></button>
+      <button class="rich-btn" onmousedown="event.preventDefault();richCmd('italic')" title="Cursiva (Ctrl+I)"><i>I</i></button>
+      <button class="rich-btn" onmousedown="event.preventDefault();richCmd('underline')" title="Subrayado (Ctrl+U)"><u>S</u></button>
+      <span style="width:1px;background:var(--border);margin:0 4px;"></span>
+      <button class="rich-btn" onmousedown="event.preventDefault();richCmd('insertUnorderedList')" title="Lista">• Lista</button>
+    </div>
+    <div class="rich-body" id="${id}" contenteditable="true"
+      data-placeholder="${placeholder}"
+      style="min-height:${h}px;"
+      oninput="richSave('${id}')">${value||''}</div>
+  </div>`;
+}
+
+function richCmd(cmd) {
+  document.execCommand(cmd, false, null);
+  // Update toolbar button states
+  document.querySelectorAll('.rich-btn').forEach(btn => {
+    const c = btn.querySelector('b,i,u');
+    if (c) {
+      const tag = c.tagName.toLowerCase();
+      const cmdMap = { b:'bold', i:'italic', u:'underline' };
+      if (cmdMap[tag]) btn.classList.toggle('active', document.queryCommandState(cmdMap[tag]));
+    }
+  });
+}
+
+let richSaveTimer = {};
+function richSave(id) {
+  clearTimeout(richSaveTimer[id]);
+  richSaveTimer[id] = setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = el.innerHTML;
+    // Map id to event field
+    const fieldMap = {
+      'ed-desc': 'descripcion',
+      'ed-notas': 'notas',
+      'rich-armado': 'armado',
+      'rich-menu': 'menu',
+      'rich-menu-especial': 'menu_especial',
+      'rich-equipamiento': 'equipamiento',
+      'rich-ambientacion': 'ambientacion',
+    };
+    const field = fieldMap[id];
+    if (field) {
+      const ev = eventsData.find(e => String(e.id) === String(currentEventId));
+      if (ev) { ev[field] = val; saveEventDB(ev); }
+    }
+  }, 1200);
 }
 
 // ═══════════════════════════════════════════
